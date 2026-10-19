@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Dr Alok Kumar Tripathi, Assistant Professor of Physics, Ramjas College, University of Delhi. Computational materials science for battery electrolytes.">
+<title>Alok Kumar Tripathi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column, sticky section nav, MD-style ion-hopping canvas under the name */
+:root{
+  --bg:#f5f6f8; --surface:#ffffff; --ink:#16202e; --muted:#5a6578; --line:#dde1e8;
+  --li:#b0163c;      /* lithium flame-test crimson */
+  --na:#c98a12;      /* sodium D-line amber */
+  --chip:#eceef3;
+  --f-display:"Literata", Georgia, "Times New Roman", serif;
+  --f-body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f141c; --surface:#161d28; --ink:#e7ebf2; --muted:#9aa5b8; --line:#273142;
+  --li:#ff5c7f; --na:#f0b64a; --chip:#1e2735; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f141c; --surface:#161d28; --ink:#e7ebf2; --muted:#9aa5b8; --line:#273142;
+  --li:#ff5c7f; --na:#f0b64a; --chip:#1e2735; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:760px;margin:0 auto;padding-block:40px 64px;display:flex;flex-direction:column;gap:56px}
+a{color:var(--li);text-underline-offset:3px}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--li);outline-offset:2px;border-radius:4px}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:clamp(2rem,6vw,2.9rem);letter-spacing:-.01em}
+h2{font-size:1.5rem}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+p{margin:0;max-width:65ch}
+
+header{display:flex;flex-direction:column;gap:14px}
+.role{font-size:1.08rem;color:var(--muted)}
+.role strong{color:var(--ink);font-weight:500}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.links a{font-family:var(--f-mono);font-size:.8rem;text-decoration:none;color:var(--ink);border:1px solid var(--line);
+  padding:6px 12px;border-radius:999px;background:var(--surface)}
+.links a:hover{border-color:var(--li);color:var(--li)}
+
+.sim{position:relative;border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden}
+.sim canvas{display:block;width:100%;height:150px}
+.sim figcaption{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;padding:8px 12px;border-top:1px solid var(--line);
+  font-family:var(--f-mono);font-size:.72rem;color:var(--muted)}
+.key{display:inline-flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);
+  display:flex;gap:4px;overflow-x:auto;margin-block:-32px -24px;padding-block:8px}
+nav a{font-size:.88rem;color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:6px;white-space:nowrap}
+nav a:hover,nav a.on{color:var(--ink);background:var(--chip)}
+
+section{display:flex;flex-direction:column;gap:18px;scroll-margin-top:64px}
+.themes{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.theme{border-top:2px solid var(--ink);padding-top:10px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.theme h3{font-size:1.02rem}
+.theme p{font-size:.93rem;color:var(--muted)}
+.tools{font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
+
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:inline-flex;background:var(--chip);border-radius:8px;padding:3px;gap:2px}
+.seg button{font:inherit;font-size:.85rem;border:0;background:transparent;color:var(--muted);padding:6px 12px;border-radius:6px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.search{flex:1 1 180px;min-width:0;font:inherit;font-size:.9rem;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.count{font-family:var(--f-mono);font-size:.78rem;color:var(--muted)}
+
+.pubs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.pub{border-bottom:1px solid var(--line);padding-block:14px;display:grid;grid-template-columns:3.2rem 1fr;gap:4px 14px}
+.yr{font-family:var(--f-mono);font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums;padding-top:2px}
+.pb{min-width:0;display:flex;flex-direction:column;gap:4px}
+.pt{font-family:var(--f-display);font-size:1.03rem;line-height:1.35}
+.pa{font-size:.86rem;color:var(--muted)}
+.pj{font-size:.88rem}
+.pj em{font-style:italic}
+.tag{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:4px;align-self:flex-start}
+.tag.comp{color:var(--li);border:1px solid var(--li)}
+.tag.exp{color:var(--muted);border:1px solid var(--line)}
+.acts{display:flex;flex-wrap:wrap;gap:12px;margin-top:4px;font-size:.84rem}
+.acts button{font:inherit;font-size:.84rem;border:0;background:none;color:var(--li);padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.empty{color:var(--muted);padding-block:14px}
+.sum{font-size:.9rem;color:var(--muted);max-width:65ch;border-left:2px solid var(--line);padding-left:10px}
+.news{display:flex;flex-direction:column;gap:10px}
+.news ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.news li{display:grid;grid-template-columns:5.6rem 1fr;gap:12px;font-size:.93rem}
+.news li>*{min-width:0}
+.nd{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums;padding-top:2px}
+.collab{font-size:.95rem}
+.more{font-size:.9rem;color:var(--muted)}
+
+.cv{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+@media (max-width:560px){.cv{grid-template-columns:1fr}}
+.cv>div{min-width:0;display:flex;flex-direction:column;gap:10px}
+dl{margin:0;display:flex;flex-direction:column;gap:10px}
+dt{font-weight:500}
+dd{margin:0;font-size:.9rem;color:var(--muted)}
+.note{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--na);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.note p{font-size:.94rem}
+
+footer{font-size:.82rem;color:var(--muted);border-top:1px solid var(--line);padding-top:16px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);
+  font-size:.85rem;padding:8px 14px;border-radius:8px;z-index:20}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Computational materials science · Energy storage</span>
+    <h1>Dr Alok Kumar Tripathi</h1>
+    <p class="role"><strong>Assistant Professor of Physics</strong>, Ramjas College, University of Delhi</p>
+    <p>I study how ions move through battery electrolytes, using molecular dynamics and density-functional theory to connect local coordination chemistry to transport. The aim is electrolyte design rules for safer lithium and sodium batteries and supercapacitors.</p>
+    <div class="links">
+      <a href="https://orcid.org/0000-0002-2019-2033" target="_blank" rel="noopener">ORCID 0000-0002-2019-2033</a>
+      <a href="https://scholar.google.com/citations?user=6AO-iisAAAAJ" target="_blank" rel="noopener">Google Scholar</a>
+    </div>
+  </header>
+
+  <figure class="sim" style="margin:0">
+    <canvas id="md" aria-label="Animation of cations hopping between coordination sites on polymer chains"></canvas>
+    <figcaption>
+      <span><span class="key"><span class="dot" style="background:var(--li)"></span>Li⁺</span>&nbsp;&nbsp;<span class="key"><span class="dot" style="background:var(--na)"></span>Na⁺</span>&nbsp;&nbsp;hopping between polymer donor sites</span>
+      <span id="clock">t = 0.0 ns</span>
+    </figcaption>
+  </figure>
+
+  <div class="news" id="newsbox">
+    <span class="eyebrow">Latest</span>
+    <ul id="news"></ul>
+  </div>
+
+  <nav aria-label="Sections">
+    <a href="#research">Research</a><a href="#publications">Publications</a><a href="#academic">Academic</a><a href="#students">Students</a>
+  </nav>
+
+  <section id="research">
+    <span class="eyebrow">Research</span>
+    <h2>What I work on</h2>
+    <div class="themes">
+      <div class="theme"><h3>Polymer electrolytes</h3><p>How polymer chain length, plasticizers and salt choice control cation solvation and diffusion in PAN, PTMC and related hosts.</p></div>
+      <div class="theme"><h3>Fillers and interfaces</h3><p>Functional inorganic fillers that trap anions and raise the share of current carried by the cation.</p></div>
+      <div class="theme"><h3>Solid ion conductors</h3><p>Doping and defect arrangement in anti-perovskite lithium conductors, from first principles.</p></div>
+    </div>
+    <p class="tools">Methods: classical MD (OPLS4) · DFT (Quantum ESPRESSO) · RDF, residence-time and MSD analysis</p>
+    <p class="collab"><strong>Open to collaboration.</strong> Experimental groups working on polymer or solid electrolytes are welcome to get in touch for joint simulation studies.</p>
+  </section>
+
+  <section id="publications">
+    <span class="eyebrow">Publications</span>
+    <h2>Selected papers</h2>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Filter by type">
+        <button id="f-all" data-f="all" aria-pressed="true">All</button>
+        <button id="f-comp" data-f="comp" aria-pressed="false">Computational</button>
+        <button id="f-exp" data-f="exp" aria-pressed="false">Experimental</button>
+      </div>
+      <input id="q" class="search" type="search" placeholder="Search title or journal" aria-label="Search publications">
+    </div>
+    <span class="count" id="count"></span>
+    <ul class="pubs" id="pubs"></ul>
+    <p class="more">Full list with citation counts on <a href="https://scholar.google.com/citations?user=6AO-iisAAAAJ" target="_blank" rel="noopener">Google Scholar</a>.</p>
+  </section>
+
+  <section id="academic">
+    <span class="eyebrow">Academic</span>
+    <h2>Background and teaching</h2>
+    <div class="cv">
+      <div>
+        <h3 style="font-size:1.05rem">Education and fellowships</h3>
+        <dl>
+          <div><dt>PhD in Physics</dt><dd>Banaras Hindu University, Varanasi</dd></div>
+          <div><dt>National Post-Doctoral Fellow</dt><dd>Science and Engineering Research Board (SERB), Govt. of India</dd></div>
+          <div><dt>CSIR-UGC NET (JRF)</dt><dd>Junior Research Fellowship, Physical Sciences</dd></div>
+        </dl>
+      </div>
+      <div>
+        <h3 style="font-size:1.05rem">Teaching</h3>
+        <dl>
+          <div><dt>Undergraduate Physics</dt><dd>B.Sc. Physics courses at Ramjas College, including Heat and Thermodynamics</dd></div>
+          <div><dt>Dissertation supervision</dt><dd>B.Sc. research projects in computational physics</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section id="students">
+    <span class="eyebrow">Students</span>
+    <div class="note">
+      <h2 style="font-size:1.2rem">B.Sc. dissertation projects</h2>
+      <p>Ramjas students interested in simulation of battery materials can do a dissertation project with me. You will learn to set up and analyse molecular simulations of electrolytes. Some Python helps; curiosity matters more. Meet me in the Physics Department.</p>
+    </div>
+  </section>
+
+  <footer>
+    <span>Department of Physics, Ramjas College, University of Delhi, Delhi 110007</span>
+    <span>Updated October 2026</span>
+  </footer>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ============ SETTINGS ============
+   Publications and News come from this Google Sheet.
+   Sheet must be shared as "Anyone with the link – Viewer".
+   To update the website, edit the Sheet. Nothing here needs changing. */
+const SHEET_ID="1xPkjg1tFZHQUb62bAAJBC2UMR19p2HWKn0_7bRomoOg";
+/* ================================== */
+
+/* Backup copy, used only if the Sheet cannot be reached */
+let NEWS=[
+ {d:"2026-10-10",t:"Paper on urea-grafted silica fillers published in Computational Materials Science",l:"https://doi.org/10.1016/j.commatsci.2026.115128"},
+ {d:"2026-10-03",t:"Molecular dynamics study of PAN–LiFSI–FEC electrolytes published in The Journal of Physical Chemistry B",l:""},
+ {d:"2026-08-26",t:"First-principles study of Mg-doped Li₃ClO accepted in Next Materials",l:""}
+];
+let PUBS=[
+ {y:2027,type:"comp",t:"From Free Molecules to Grafted Fillers: Covalent Urea Sites for Trapping Anions in Lithium Battery Electrolytes",
+  a:"A. K. Tripathi",j:"Computational Materials Science",v:"276 (2027) 115128",doi:"10.1016/j.commatsci.2026.115128",
+  s:"Urea groups grafted on silica filler particles bind the electrolyte anion, so a larger share of the current is carried by Li⁺. Studied with molecular dynamics and DFT in a PTMC–LiFSI electrolyte."},
+ {y:2026,type:"comp",t:"Effect of Polymer Chain Length and Fluoroethylene Carbonate Plasticizer on Lithium-Ion Transport in PAN–LiFSI Solid Polymer Electrolytes: A Molecular Dynamics Study",
+  a:"A. K. Tripathi",j:"The Journal of Physical Chemistry B",v:"(2026)",doi:"",
+  s:"Longer PAN chains slow Li⁺ by caging it among nitrile groups. FEC stays outside the first solvation shell but loosens Li⁺–polymer binding, which speeds up diffusion."},
+ {y:2026,type:"comp",t:"Effect of Mg doping and dopant-vacancy arrangement on the structural stability, electronic structure, and Li-ion migration of anti-perovskite Li₃ClO: A first-principles study",
+  a:"A. K. Tripathi",j:"Next Materials",v:"13 (2026) 103348",doi:"",
+  s:"First-principles study of how Mg doping and the placement of the vacancies it creates change the stability and Li-ion migration of the solid conductor Li₃ClO."},
+ {y:2018,type:"exp",t:"Electrochemical study of ionic liquid based polymer electrolyte with graphene oxide coated LiFePO₄ cathode for Li-battery",
+  a:"H. Gupta, Shalu, L. Balo, V. K. Singh, S. K. Singh, A. K. Tripathi, Y. L. Verma, R. K. Singh",j:"Solid State Ionics",v:"320 (2018) 186"},
+ {y:2017,type:"exp",t:"Effect of temperature on electrochemical performance of ionic liquid based polymer electrolyte with Li/LiFePO₄ electrodes",
+  a:"H. Gupta, Shalu, L. Balo, V. K. Singh, S. K. Singh, A. K. Tripathi, Y. L. Verma, R. K. Singh",j:"Solid State Ionics",v:"309 (2017) 192"},
+ {y:2016,type:"exp",t:"Ionic Liquid Based Polymer Gel Electrolyte Membranes for Lithium Ion Rechargeable Batteries",
+  a:"Shalu, L. Balo, H. Gupta, V. K. Singh, S. K. Singh, A. K. Tripathi, Y. L. Verma, R. K. Singh",j:"ECS Transactions",v:"73 (2016) 183"}
+];
+let filter="all";
+try{const s=localStorage.getItem("pubFilter");if(s)filter=s}catch(e){}
+const list=document.getElementById("pubs"),q=document.getElementById("q"),count=document.getElementById("count");
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const cite=p=>`${p.a}, ${p.t}, ${p.j} ${p.v}${p.doi?", https://doi.org/"+p.doi:""}.`;
+function render(){
+  const term=q.value.trim().toLowerCase();
+  const rows=PUBS.filter(p=>(filter==="all"||p.type===filter)&&(!term||(p.t+" "+p.j).toLowerCase().includes(term)));
+  list.innerHTML=rows.length?rows.map((p,i)=>`<li class="pub"><span class="yr">${p.y}</span><div class="pb">
+    <span class="tag ${p.type}">${p.type==="comp"?"Computational":"Experimental"}</span>
+    <span class="pt">${esc(p.t)}</span><span class="pa">${esc(p.a)}</span>
+    <span class="pj"><em>${esc(p.j)}</em> ${esc(p.v)}</span>
+    <p class="sum" id="sum-${PUBS.indexOf(p)}" hidden>${esc(p.s||"")}</p>
+    <div class="acts">${p.s?`<button data-sum="${PUBS.indexOf(p)}" aria-expanded="false">Summary</button>`:""}${p.doi?`<a href="https://doi.org/${esc(p.doi)}" target="_blank" rel="noopener">DOI ${esc(p.doi)}</a>`:""}<button data-i="${PUBS.indexOf(p)}">Copy citation</button></div>
+  </div></li>`).join(""):`<li class="empty">No papers match that search.</li>`;
+  count.textContent=`${rows.length} of ${PUBS.length} papers`;
+  document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.f===filter));
+}
+document.querySelector(".seg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;filter=b.dataset.f;try{localStorage.setItem("pubFilter",filter)}catch(e){}render()});
+q.addEventListener("input",render);
+const toast=document.getElementById("toast");let tt;
+function show(m){toast.textContent=m;toast.hidden=false;clearTimeout(tt);tt=setTimeout(()=>toast.hidden=true,1800)}
+list.addEventListener("click",e=>{const sb=e.target.closest("button[data-sum]");
+  if(sb){const el=document.getElementById("sum-"+sb.dataset.sum);el.hidden=!el.hidden;sb.setAttribute("aria-expanded",!el.hidden);sb.textContent=el.hidden?"Summary":"Hide summary";return}
+  const b=e.target.closest("button[data-i]");if(!b)return;const text=cite(PUBS[+b.dataset.i]);
+  navigator.clipboard&&navigator.clipboard.writeText(text).then(()=>show("Citation copied"),()=>fallback(text))||fallback(text)});
+function fallback(text){const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();
+  let ok=false;try{ok=document.execCommand("copy")}catch(e){}ta.remove();show(ok?"Citation copied":"Select and copy the citation manually")}
+
+function renderNews(){
+  const box=document.getElementById("newsbox"),ul=document.getElementById("news");
+  const items=NEWS.filter(n=>n.t).sort((a,b)=>String(b.d).localeCompare(String(a.d))).slice(0,3);
+  box.hidden=!items.length;
+  const fmt=d=>{const m=/^(\d{4})-(\d{2})/.exec(d);return m?["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+m[2]-1]+" "+m[1]:d};
+  ul.innerHTML=items.map(n=>`<li><span class="nd">${esc(fmt(String(n.d)))}</span><span>${esc(n.t)}${n.l?` · <a href="${esc(n.l)}" target="_blank" rel="noopener">Read</a>`:""}</span></li>`).join("");
+}
+
+/* CSV parser that handles quoted cells with commas and line breaks */
+function parseCSV(text){const rows=[];let row=[],cell="",q=false;
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(q){if(c==='"'){if(text[i+1]==='"'){cell+='"';i++}else q=false}else cell+=c}
+    else if(c==='"')q=true;else if(c===","){row.push(cell);cell=""}
+    else if(c==="\n"||c==="\r"){if(c==="\r"&&text[i+1]==="\n")i++;row.push(cell);rows.push(row);row=[];cell=""}
+    else cell+=c}
+  if(cell||row.length){row.push(cell);rows.push(row)}
+  const head=(rows.shift()||[]).map(h=>h.trim().toLowerCase());
+  return rows.filter(r=>r.some(x=>x.trim())).map(r=>Object.fromEntries(head.map((h,i)=>[h,(r[i]||"").trim()])));
+}
+async function loadTab(name){
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(name)}`;
+  const r=await fetch(url);if(!r.ok)throw new Error(r.status);return parseCSV(await r.text());
+}
+async function loadSheet(){
+  try{
+    const [p,n]=await Promise.all([loadTab("Publications"),loadTab("News")]);
+    const pubs=p.filter(r=>r.title).map(r=>({y:parseInt(r.year)||"",type:/exp/i.test(r.type)?"exp":"comp",t:r.title,a:r.authors,
+      j:r.journal,v:r["volume/pages"]||"",doi:(r.doi||"").replace(/^https?:\/\/(dx\.)?doi\.org\//,""),s:r.summary}))
+      .sort((a,b)=>(b.y||0)-(a.y||0));
+    if(pubs.length){PUBS=pubs;render()}
+    NEWS=n.map(r=>({d:r.date,t:r.text,l:r.link}));renderNews();
+  }catch(e){/* Sheet not reachable: backup copy stays on screen */}
+}
+render();renderNews();loadSheet();
+
+/* nav highlight */
+const links=[...document.querySelectorAll("nav a")];
+const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting)links.forEach(a=>a.classList.toggle("on",a.getAttribute("href")==="#"+en.target.id))}),{rootMargin:"-40% 0px -55% 0px"});
+document.querySelectorAll("section[id]").forEach(s=>io.observe(s));
+
+/* MD-style canvas: three polymer chains with donor sites; cations rattle at a site and occasionally hop */
+(function(){
+  const cv=document.getElementById("md"),ctx=cv.getContext("2d"),clock=document.getElementById("clock");
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let W,H,sites=[],ions=[],t=0;
+  const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  function build(){
+    const r=cv.getBoundingClientRect(),d=devicePixelRatio||1;W=r.width;H=r.height;cv.width=W*d;cv.height=H*d;ctx.setTransform(d,0,0,d,0,0);
+    sites=[];const chains=3,n=Math.max(8,Math.round(W/46));
+    for(let c=0;c<chains;c++){const y0=H*(c+1)/(chains+1);const ph=c*1.7;
+      for(let k=0;k<n;k++){const x=(k+.5)*W/n;sites.push({x,y:y0+Math.sin(k*.9+ph)*11,c,k})}}
+    const count=Math.max(5,Math.round(W/70));ions=[];
+    for(let i=0;i<count;i++){const s=Math.floor(Math.random()*sites.length);ions.push({s,from:s,p:1,na:i%3===2,ph:Math.random()*6})}
+  }
+  function step(){
+    t+=1;
+    ions.forEach(o=>{if(o.p<1){o.p=Math.min(1,o.p+0.035)}else if(Math.random()<0.006){
+      const cur=sites[o.s];const near=sites.map((s,i)=>[i,Math.hypot(s.x-cur.x,s.y-cur.y)]).filter(a=>a[0]!==o.s&&a[1]<90).sort((a,b)=>a[1]-b[1]);
+      if(near.length){o.from=o.s;o.s=near[Math.floor(Math.random()*Math.min(4,near.length))][0];o.p=0}}});
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);const line=css("--line"),mut=css("--muted");
+    for(let c=0;c<3;c++){const ss=sites.filter(s=>s.c===c);ctx.beginPath();ss.forEach((s,i)=>i?ctx.lineTo(s.x,s.y):ctx.moveTo(s.x,s.y));ctx.strokeStyle=line;ctx.lineWidth=3;ctx.stroke();
+      ss.forEach(s=>{ctx.beginPath();ctx.arc(s.x,s.y,2.6,0,7);ctx.fillStyle=mut;ctx.fill()})}
+    ions.forEach(o=>{const a=sites[o.from],b=sites[o.s],e=o.p<.5?2*o.p*o.p:1-Math.pow(-2*o.p+2,2)/2;
+      const jit=o.p>=1?3:0;const x=a.x+(b.x-a.x)*e+Math.sin(t*.21+o.ph)*jit,y=a.y+(b.y-a.y)*e-7+Math.cos(t*.17+o.ph)*jit;
+      ctx.beginPath();ctx.arc(x,y,o.na?6:4.5,0,7);ctx.fillStyle=o.na?css("--na"):css("--li");ctx.fill()});
+    clock.textContent=`t = ${(t*0.002).toFixed(1)} ns`;
+  }
+  function loop(){step();draw();requestAnimationFrame(loop)}
+  build();
+  if(reduce){for(let i=0;i<400;i++)step();draw()}else loop();
+  let rt;addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>{build();draw()},150)});
+})();
+</script>
+
+</body>
+</html>
