@@ -83,6 +83,7 @@ section{display:flex;flex-direction:column;gap:18px;scroll-margin-top:64px}
 .tag{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:4px;align-self:flex-start}
 .tag.comp{color:var(--li);border:1px solid var(--li)}
 .tag.exp{color:var(--muted);border:1px solid var(--line)}
+.tag.both{color:var(--na);border:1px solid var(--na)}
 .acts{display:flex;flex-wrap:wrap;gap:12px;margin-top:4px;font-size:.84rem}
 .acts button{font:inherit;font-size:.84rem;border:0;background:none;color:var(--li);padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .empty{color:var(--muted);padding-block:14px}
@@ -246,9 +247,10 @@ const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&qu
 const cite=p=>`${p.a}, ${p.t}, ${p.j} ${p.v}${p.doi?", https://doi.org/"+p.doi:""}.`;
 function render(){
   const term=q.value.trim().toLowerCase();
-  const rows=PUBS.filter(p=>(filter==="all"||p.type===filter)&&(!term||(p.t+" "+p.j).toLowerCase().includes(term)));
+  const inF=p=>filter==="all"||p.type===filter||(p.type==="both"&&(filter==="comp"||filter==="exp"));
+  const rows=PUBS.filter(p=>inF(p)&&(!term||(p.t+" "+p.j).toLowerCase().includes(term)));
   list.innerHTML=rows.length?rows.map((p,i)=>`<li class="pub"><span class="yr">${p.y}</span><div class="pb">
-    <span class="tag ${p.type}">${p.type==="comp"?"Computational":"Experimental"}</span>
+    <span class="tag ${p.type}">${p.type==="comp"?"Computational":p.type==="both"?"Experimental + DFT":"Experimental"}</span>
     <span class="pt">${esc(p.t)}</span><span class="pa">${esc(p.a)}</span>
     <span class="pj"><em>${esc(p.j)}</em> ${esc(p.v)}</span>
     <p class="sum" id="sum-${PUBS.indexOf(p)}" hidden>${esc(p.s||"")}</p>
@@ -294,7 +296,7 @@ async function loadTab(name){
 async function loadSheet(){
   try{
     const [p,n]=await Promise.all([loadTab("Publications"),loadTab("News")]);
-    const pubs=p.filter(r=>r.title).map(r=>({y:parseInt(r.year)||"",type:/exp/i.test(r.type)?"exp":"comp",t:r.title,a:r.authors,
+    const pubs=p.filter(r=>r.title).map(r=>({y:parseInt(r.year)||"",type:(/exp/i.test(r.type)&&/dft|theo|comp/i.test(r.type))?"both":/exp/i.test(r.type)?"exp":"comp",t:r.title,a:r.authors,
       j:r.journal,v:r["volume/pages"]||"",doi:(r.doi||"").replace(/^https?:\/\/(dx\.)?doi\.org\//,""),s:r.summary}))
       .sort((a,b)=>(b.y||0)-(a.y||0));
     if(pubs.length){PUBS=pubs;render()}
